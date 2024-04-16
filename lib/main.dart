@@ -72,6 +72,18 @@ class _MyHomePageState extends State<MyHomePage> {
   ScrollController scrollController = ScrollController();
 
   @override
+  void initState() {
+    Future.delayed(const Duration(seconds: 4)).then((value) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Welcome to the Astronomy Picture of the Day!'),
+        ),
+      );
+    });
+    super.initState();
+  }
+
+  @override
   void dispose() {
     scrollController.dispose();
     super.dispose();
@@ -84,54 +96,54 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('Astronomy picture of the day'),
       ),
-      body: BlocConsumer(
-          bloc: apodCubit,
-          builder: (context, state) {
-            if (state is ApodLoaded) {
-              return SingleChildScrollView(
-                controller: scrollController,
-                physics: blockScroll ? const NeverScrollableScrollPhysics() : const ScrollPhysics(),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.tertiaryContainer,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    children: [
-                      PinchZoomReleaseUnzoomWidget(
-                          twoFingersOn: () => setState(() => blockScroll = true),
-                          twoFingersOff: () => Future.delayed(
-                              PinchZoomReleaseUnzoomWidget.defaultResetDuration,
-                              () => setState(() => blockScroll = false)),
-                          child: CachedNetworkImage(imageUrl: state.apod.imageUrl)),
-                      const SizedBox(height: 16),
-                      Text(
-                        state.apod.title,
-                        style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onTertiaryContainer),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(state.apod.explanation,
-                          textAlign: TextAlign.justify,
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: Theme.of(context).colorScheme.onTertiaryContainer)),
-                    ],
-                  ),
+      body: BlocBuilder(
+        bloc: apodCubit,
+        builder: (context, state) {
+          if (state is ApodLoaded) {
+            return SingleChildScrollView(
+              controller: scrollController,
+              physics: blockScroll ? const NeverScrollableScrollPhysics() : const ScrollPhysics(),
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.tertiaryContainer,
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              );
-            } else if (state is ApodError) {
-              return Center(child: Text(state.message));
-            } else {
-              return const Center(child: CircularProgressIndicator());
-            }
-          },
-          listener: (context, state) {}),
+                child: Column(
+                  children: [
+                    PinchZoomReleaseUnzoomWidget(
+                        twoFingersOn: () => setState(() => blockScroll = true),
+                        twoFingersOff: () => Future.delayed(
+                            PinchZoomReleaseUnzoomWidget.defaultResetDuration,
+                            () => setState(() => blockScroll = false)),
+                        child: CachedNetworkImage(imageUrl: state.apod.imageUrl)),
+                    const SizedBox(height: 16),
+                    Text(
+                      state.apod.title,
+                      style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onTertiaryContainer),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(state.apod.explanation,
+                        textAlign: TextAlign.justify,
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Theme.of(context).colorScheme.onTertiaryContainer)),
+                  ],
+                ),
+              ),
+            );
+          } else if (state is ApodError) {
+            return Center(child: Text(state.message));
+          } else {
+            return const Center(child: CircularProgressIndicator());
+          }
+        },
+      ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
